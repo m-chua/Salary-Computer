@@ -1,0 +1,596 @@
+#include <stdio.h>
+
+
+// looks for a month day input
+int period(int *periodM, int *periodD, char when[20])
+{
+	//variable declaration (these variables mostly for error handling)
+	int check=0;
+	char surety;
+	
+	// user error handling
+	while (check==0)
+		{
+			//ask for input (month) and stores it in pointer
+			printf("=====\nPlease input the %s month MM : ", when);
+			scanf("%d", & *periodM);
+			
+			//double checking answers
+			printf("Are you sure about your input? Y / N : ");
+			scanf(" %c", & surety);
+			
+			// double checking the error handling input
+			if (surety=='Y')
+				/*if the month is within 12 and the user is sure of their input*/
+				if (*periodM >=1 && *periodM<=12)
+					check++;
+				/*If user is sure of their input for the month but the month is outside 1-12*/
+				else 
+					// if the period is outside 1-12 then the while function will loop and reask for input
+					printf("\nInvalid input. Please input a value within 1-12.\n");
+			//if user is not sure of their input
+			else 
+				// if the surety check is wrong then the while function will loop and reask for input
+				printf("\nBe careful of your input. Please input 'Y' once you are sure.\n");
+		}
+	
+	//reset error handling
+	check=0;
+	while (check==0)
+		{
+			//ask for input
+			printf("=====\nPlease input the %s day DD : ", when);
+			scanf("%d", & *periodD);
+			
+			//double checking answers
+			printf("Are you sure about your input? Y / N : ");
+			scanf(" %c", & surety);
+			// double checking the error handling
+			//if user is sure
+			if (surety=='Y')
+				{
+				//if month is with 31 days and user is sure of input
+				if (*periodM == 1 || *periodM == 3 || *periodM == 5 
+				||*periodM == 7 ||*periodM == 8 ||*periodM == 10 ||
+				*periodM == 12)
+					{
+					//if the months are those with 31 days and the user is sure and the input is within 1-31
+					if (*periodD >=1 && *periodD<=31)
+						check++;
+					//if the input is outside then this will input
+					else 
+						// if the month is outside bounds then the while function will loop and reask for input
+						printf("\nInvalid input. Please input a value within 1-31.\n");
+					}
+				//if the user is sure and the month has 30 days
+				else if (*periodM == 4 || *periodM == 6 || *periodM == 9 
+				||*periodM == 11)
+					{
+						//if user is sure, month has 30 days, and input is within 1-30
+					if (*periodD >=1 && *periodD<=30)
+						check++;
+					else 
+						// if the month is outside bounds then the while function will loop and reask for input
+						printf("\nInvalid input. Please input a value within 1-30. \n");
+					}
+				//if the user is sure and its feb
+				else if (*periodM ==2)
+					{
+					//if user is sure, its feb, and input is within 1-28
+					if (*periodD >=1 && *periodD<=28)
+						check++;
+					else 
+						// if the month is outside bounds then the while function will loop and reask for input
+						printf("\nInvalid input. Please input a value within 1-28.\n");
+					}
+				
+				}
+			else 
+				// if the surety check is wrong then the while function will loop and reask for input
+				printf("\nAre you sure? Please input 'Y' once you are sure.\n");
+		}
+		
+		
+	printf("The %s date is  %.2d / %.2d.   (MM/DD)\n", when, *periodM, *periodD);
+}
+
+
+//checks if time in or time out is valid
+int inout(char which[5], int *currentM, int *currentD, int *startHr, int *startMin)
+{	
+	//varialbe declaration
+	char timeValid='N';
+	int time;
+	
+	//error handling
+	while (timeValid!='Y')
+		{
+		//clock in time input
+		printf("\n=====\nPlease input their clock %s time for %d/%d:  ", which, *currentM, *currentD);
+		scanf("%d",& time);
+		
+		//divides the input into hour and min values
+		*startHr=time/100;
+		*startMin=time%100;
+		
+		//error handling
+		printf("Are you sure of your input? [Y/N]  ");
+		scanf(" %c", & timeValid);
+		
+		//if the user is sure and the input is valid (hr is within 0-24 and min is within 0-60)
+		if (timeValid=='Y'&&((*startHr>=0) &&(*startHr<=24) && (*startMin>=0) && (*startMin<=60)))
+			//outputs the clock in time
+			printf("They clocked %s at %.2d:%.2d. \n", which, *startHr, *startMin);	
+		//if there is an error in input or in validity of input
+		else
+			{
+			printf("\nPlease double check your input. Input 'Y' once you are sure.\n");
+			//refreshes error handling variable in cas user is sure but input is invalid
+			timeValid='N';
+			}
+	}
+	
+	//returns inputted time to check if user overnighted 
+	return time;	
+}
+
+char isholiday (int currentM, int currentD)
+{
+	char holiday='N';
+	//checks if holiday
+	if (((currentM==1)&&(currentD==1)) //jan 1 new year
+	||((currentM==4)&&(currentD==9)) // april 9 araw ng kagitingan
+	||((currentM==4)&&(currentD==14)) //maundy thursday
+	||((currentM==4)&&(currentD==15)) //good friday
+	||((currentM==5)&&(currentD==1)) //labor day
+	||((currentM==5)&&(currentD==3)) //Eid�l Fitr � May 3
+	||((currentM==6)&&(currentD==12)) //Independence Day � June 12
+	||((currentM==7)&&(currentD==9)) //Eid�l Adha � July 9
+	||((currentM==8)&&(currentD==29)) //National Heroes� Day � August 29
+	||((currentM==11)&&(currentD==30)) //Bonifacio Day � November 30
+	||((currentM==12)&&(currentD==25)) //Christmas Day � December 25
+	||((currentM==12)&&(currentD==30))//Rizal Day � Dec 30
+	)
+		{
+		holiday='Y';
+		}
+	return holiday;
+	
+}
+
+char isspecial(int currentM, int currentD)
+{	//checks if special
+	char special='N';
+	if (((currentM==2)&&(currentD==1)) //Chinese New Year � February 1
+	||((currentM==2)&&(currentD==25)) //EDSA Revolution Anniversary � February 25
+	||((currentM==4)&&(currentD==16)) // Black Saturday � April 16
+	||((currentM==5)&&(currentD==9)) //National and Local Elections � May 9
+	||((currentM==8)&&(currentD==21)) //Ninoy Aquino Day � August 21
+	||((currentM==11)&&(currentD==1)) //All Saints� Day � November 1
+	||((currentM==11)&&(currentD==2)) //All Souls� Day � November 2
+	||((currentM==12)&&(currentD==8)) //Feast of the Immaculate Conception of Mary � December 8
+	||((currentM==12)&&(currentD==24)) //Christmas Eve � December 24
+	||((currentM==12)&&(currentD==31)) //New Year�s Eve � December 31
+	)
+	{
+	special='Y';
+	}
+	return special;
+}
+
+//checks if rest day
+char isrest_day(int currentM, int currentD, int consecutive, int *rest_day_1M, int *rest_day_1D, 
+int *rest_day_2M, int *rest_day_2D, int *rest_day_3M, int *rest_day_3D, int *rest_day_4M, int *rest_day_4D, 
+int *rest_day_5M, int *rest_day_5D, int *rest_day_6M, int *rest_day_6D, int *rest_day_7M, int *rest_day_7D, 
+int *rest_day_8M, int *rest_day_8D, int *rest_day_9M, int *rest_day_9D, int *rest_day_10M, int *rest_day_10D)
+{
+	char rest_day='N';
+	//checks if rest day
+	if (
+	((currentM== *rest_day_1M)&&(currentD== *rest_day_1D))
+	||((currentM== *rest_day_2M)&&(currentD== *rest_day_2D))
+	||((currentM== *rest_day_3M)&&(currentD== *rest_day_3D))
+	||((currentM== *rest_day_4M)&&(currentD== *rest_day_4D))
+	||((currentM== *rest_day_5M)&&(currentD== *rest_day_5D))
+	||((currentM== *rest_day_6M)&&(currentD== *rest_day_6D))
+	||((currentM== *rest_day_7M)&&(currentM== *rest_day_7D))
+	||((currentM== *rest_day_8M)&&(currentM== *rest_day_8D))
+	||((currentM== *rest_day_9M)&&(currentM== *rest_day_9D))
+	||((currentM== *rest_day_10M)&&(currentM== *rest_day_10D))
+	|| (consecutive==7))
+	{
+	rest_day='Y';
+	}
+	return rest_day;
+}
+
+
+float salarycomp(float worked, char holiday, char special, char rest_day, float min_rate, float nighthrs, float nonight, float nsot, float regot, float passedon)
+{
+	float running_salary=0;
+	if (holiday=='Y' && worked<480 && (480-worked-passedon)>0)
+		{running_salary+=min_rate*(480-worked-passedon);
+		}
+	// calculates date based additionals
+	{	
+		{
+			if (holiday=='Y')
+				{
+				running_salary+=min_rate*(2*(nonight+regot*1.25)+ 2.2*(nighthrs+nsot*1.25));}
+			else if ((rest_day=='Y') && (special=='Y'))
+				{
+				running_salary+=min_rate*(1.5*(nonight+regot*1.25)+1.43*(nighthrs+1.25*nsot));}
+			else if ((rest_day=='Y') && (holiday=='Y'))
+				{
+				running_salary+=min_rate*(2.6*(nonight+regot*1.25)+2.2*(nighthrs+nsot*1.25));}
+			else if ((special=='Y')||(rest_day=='Y'))
+				{
+				running_salary+=min_rate*(1.3*(nonight+regot*1.25)+1.43*(nighthrs+nsot*1.25));}
+			else
+				{
+				running_salary+=(nonight+regot*1.25+1.1*(nighthrs+nsot*1.25))*min_rate;
+				}
+		}
+	
+	}	
+	return running_salary;
+}
+
+float daysworked(int currentM, int currentD, float *nighthrs, float *worked, float *nonight, char holiday, 
+char special, char rest_day, int startHr, int endHr, int startMin, int endMin, int currentHr, float min_rate, 
+float *nsot, float *regot, float * dayafter, char carryover, float passedon)
+{
+	float daywork=0;
+	//if the hours are the same, then the time worked is the number of minutes in between the start and end minute inputs
+	if (startHr==endHr)
+		{	daywork=endMin-startMin;
+			*worked+=daywork;
+			if (carryover=='Y')
+				*dayafter+=daywork;
+			//if night shift, then plus the hours worked
+			if ((currentHr>=22) || (currentHr<6))
+					{*nighthrs+=daywork;
+					if (*worked>480)
+						{*nighthrs-=*worked-480-*nsot;
+						*nsot+=*worked-480-*nsot;}}
+				else 
+					{*nonight+=daywork;
+					if (*worked>480)
+						{*nonight-=*worked-480-*regot;
+						*regot+=*worked-480-*regot;}}
+			
+		}
+	else 
+	{
+		for (currentHr=startHr; currentHr<=endHr; currentHr++)
+		{if (currentHr==startHr) //for the first run, this part will make the time even
+				daywork=60-startMin;
+		else if (currentHr==endHr) //at the end. will add the remaining minutes
+				daywork=endMin;
+		else //will add 1 hour if its not the start or end
+				daywork=60;
+			*worked+=daywork;
+			if (carryover=='Y')
+				*dayafter+=daywork;
+		if ((currentHr>=22) || (currentHr<6))
+			{*nighthrs+=daywork;
+			if (*worked>480)
+				{
+				*nighthrs-=*worked-480-*nsot-*regot;
+				*nsot+=*worked-480-*nsot-*regot;}}
+		else 
+			{*nonight+=daywork;
+			if (*worked>480)
+				{
+				*nonight-=*worked-480-*regot-*nsot;
+				*regot+=*worked-480-*regot-*nsot;}}
+			}
+	}
+	return salarycomp(*worked, holiday, special, rest_day, min_rate, *nighthrs, *nonight, *nsot, *regot, passedon);
+}
+
+
+main()
+{
+	//variable declaration
+	/* the variables at the below are for the period of time where the salary computation will happen*/
+	int period_check=0, start_periodM, start_periodD, end_periodM, end_periodD, 
+	/* variables for the loop for the number of employees*/
+	num_employee, x=1, 
+	/*time related variables (for salary calculation)*/
+	currentM, currentD, currentHr, currentMin, time, startHr, startMin, 
+	endHr, endMin, end_month, start_month, consecutive=0, timeValid='F', in, out, num_rest, 
+	/*rest day variables for when the user wants to input rest days (up to 10 since thats the max according to the instructions)*/
+	rest_day_1M=0, rest_day_1D=0, rest_day_2M=0, rest_day_2D=0, rest_day_3M=0, 
+	rest_day_3D=0,rest_day_4M=0, rest_day_4D=0, rest_day_5M=0, rest_day_5D=0, rest_day_6M=0, 
+	rest_day_6D=0, rest_day_7M=0,  rest_day_7D=0, rest_day_8M=0, rest_day_8D=0, rest_day_9M=0, 
+	rest_day_9D=0, rest_day_10M=0, rest_day_10D=0;
+	
+	/*variables for the money and salary*/
+	float daysal=0, running_salary=0, daily_rate, hourly_rate, min_rate, 
+	/*variables counting how many hours the employee worked */
+		worked=0, daywork=0, nighthrs=0, overnighthrs=0, overnonight=0, nonight=0, nsot=0, regot=0, dayafter=0, passedon=0;
+	
+	/*variables for checking if a day is special or error handling variables */
+	char rate_check='N', holiday='N', special='N', rest_day='N', employee_check='N', rest_check='N';
+	
+	
+	// makes sure that the start period is not after the end period
+	// asks for the start and end month and day 
+	while (period_check==0)
+	{
+	//gets the start of the time period for salary calculation
+	period(&start_periodM, &start_periodD, "start");
+	
+
+	//gets the end of the time period for salary calculation
+	period(&end_periodM, &end_periodD, "end");
+	
+	// if the start month is before the end month, then terminate the error handling loop and continue the code
+	if (start_periodM<end_periodM)
+		period_check++;
+	/*if the start month and the end month is the same but the start day is 
+	before, stop the error handling loop and continue with the code*/
+	else if (start_periodM==end_periodM && start_periodD<=end_periodD)
+		period_check++;
+	// the the dates are in the wrong order, then the function will restart and the inputs will be redone
+	else
+		printf("\n=====\nThe dates are invalid. Please try again. \n=====\n");
+	}
+	
+	//number of salaries to be computed input	
+	
+	//will check if you  submitted an invalid number
+	
+	while (employee_check!='Y')
+	{	
+		//asks for num of employees
+		printf("\nPlease input the number of employees whose salaries you will compute. \n");
+		scanf("%d", & num_employee);
+		
+		//error handling
+		printf("Are you sure of your input? [Y/N] ");
+		scanf(" %c", & employee_check);
+		
+		//if user is not sure 
+		if (employee_check != 'Y')
+			printf("Please double check your input! You can only continue after you input 'Y'.\n");
+		//if user is sure but input is negative
+		else if (num_employee<0)
+			{
+			printf("You cannot have a negative number of employees!\n");
+			//resets in input 
+			employee_check='N';
+			}
+		//otherwise, the input is valid 
+		else
+			employee_check='Y';
+	}
+	
+	//salary computation
+	//loops several times for each employee
+	for(x=1; x<=num_employee; x++)
+	{
+		printf("\n=====\n\nWe are now calculating employee %d's salary. \n\n", x);
+		//asks for daily rate (error handling)
+		while (rate_check!='Y')
+		{
+			//asks for the daily rate
+			printf("\n=====\nWhat is this user's daily rate?  ");
+			scanf("%f",& daily_rate);
+			
+			//double check
+			printf("\nAre you sure? [Y/N]   ");
+			scanf(" %c",& rate_check);
+			
+			//error handling
+			//if you did not input Y then it will ask you to input again
+			if (rate_check!='Y')
+				printf("\nPlease check your input. You will only continue after you input 'Y'. \n");
+			else if (daily_rate<0)
+				{
+				//if the daily salary of the person is negative then it will ask for input again
+				printf("\nYou cannot have a negative salary. Please input again. ");
+				rate_check='N';
+				}
+		}
+		
+		//hourly rate and min rate for easier calculation
+		hourly_rate=daily_rate/8;
+		min_rate=hourly_rate/60;
+		
+		//outputs the hourly rate
+		printf("The user's hourly rate is %.2f. \n", hourly_rate);
+		
+		while (rest_check!='Y')	{	
+			//asks for num of rest days
+			printf("\nPlease input the number of rest days for this employee. \n");
+			scanf("%d", & num_rest);
+			
+			//error handling
+			printf("Are you sure of your input? [Y/N] ");
+			scanf(" %c", & rest_check);
+			
+			//if user is not sure
+			if (rest_check != 'Y')
+				printf("Please double check your input! You can only continue after you input 'Y'.\n");
+			//if user is sure but input is more than 10
+			else if (num_rest>10)
+				{
+				printf("\nYou should have 10 rest days max in this time period. \n");
+				rest_check='N';
+			}
+			//user is sure and input is valid
+			else
+				employee_check='Y';
+		}
+		
+		//will ask for the rest days
+		switch (num_rest)
+		{
+			case 10: period(&rest_day_10M, &rest_day_10D, "rest day 10");
+			case 9: period(&rest_day_9M, &rest_day_9D, "rest day 9");
+			case 8: period(&rest_day_8M, &rest_day_8D, "rest day 8");
+			case 7: period(&rest_day_7M, &rest_day_7D, "rest day 7");
+			case 6: period(&rest_day_6M, &rest_day_6D, "rest day 6");
+			case 5: period(&rest_day_5M, &rest_day_5D, "rest day 5");
+			case 4: period(&rest_day_4M, &rest_day_4D, "rest day 4");
+			case 3: period(&rest_day_3M, &rest_day_3D, "rest day 3");
+			case 2: period(&rest_day_2M, &rest_day_2D, "rest day 2");
+			case 1: period(&rest_day_1M, &rest_day_1D, "rest day 1");
+		}
+		
+		//salary calculation
+		//loop for the months
+		for (currentM=start_periodM; currentM<=end_periodM; currentM++)
+		{
+			//for counting the days
+			//will make sure that when couting salaries, january wont have 28 days or smth 
+			if (currentM!=end_periodM)
+			{
+			if (currentM == 1 || currentM == 3 || currentM == 5 ||currentM == 7 ||currentM == 8 ||currentM== 10 ||currentM == 12)
+				end_month=31;
+			else if (currentM == 4 || currentM == 6 || currentM == 9 ||currentM == 11)
+				end_month=30;
+			else if (currentM==2)
+				end_month=28;	
+			}
+			else
+			end_month=end_periodD;
+			//loop for the days
+			//will reset each day as a month passes 
+				if (start_periodM!=currentM)
+				start_month=1;
+				else start_month=start_periodD;
+			for (currentD=start_month; currentD<=end_month; currentD++)
+			{	
+				//gets time in time out
+				in=inout("in", &currentM, &currentD, &startHr, &startMin);
+				out=inout("out", &currentM, &currentD, &endHr, &endMin);
+				
+				//because if a worker works 6 days straight, next day is rest day
+				//one rest day every seven days if employee workes everyday for 7 days 
+				//cannot have rest day rates every day because the employee doesnt rest
+				//if worker clocked in and worked then it will count that
+				if (!(in==0)&&!(out==0) && consecutive<=7)
+					{
+					consecutive++;
+					//if worker worked for more than 7 days then it will reset the count to 1 again
+					if (consecutive>7)
+					consecutive=1;
+					}
+				//if worker didnt work, it will reset the count
+				else 
+					consecutive=0;
+				
+				passedon=dayafter;
+				dayafter=0;
+				
+				//checks if rate will be increased
+			{holiday=isholiday(currentM, currentD);
+			if (holiday=='Y')  
+				printf("\nIt's a holiday!\n");
+					
+			special=isspecial(currentM, currentD);
+				if (special=='Y')  
+					printf("\nIt's a special day!\n");
+					
+			rest_day=isrest_day(currentM, currentD, consecutive, &rest_day_1M, &rest_day_1D, 
+			&rest_day_2M, &rest_day_2D, &rest_day_3M, &rest_day_3D, &rest_day_4M, &rest_day_4D, 
+			&rest_day_5M, &rest_day_5D, &rest_day_6M, &rest_day_6D, &rest_day_7M, &rest_day_7D, 
+			&rest_day_8M, &rest_day_8D, &rest_day_9M, &rest_day_9D, &rest_day_10M, &rest_day_10D);
+				if (rest_day=='Y')
+					printf("\nIt's a rest day!\n");
+			}
+			
+			
+			//if eployee overnighted
+			if 	(in>out)	
+			{
+				//calculates salary for the part of the day that is not overnighted (start time ->24)
+			daysal+=daysworked(currentM, currentD, &nighthrs, &worked, &nonight, holiday, special, rest_day, 
+				 startHr, 24, startMin, 0, currentHr, min_rate, & nsot, & regot, & dayafter, 'N', passedon);
+			
+			//to check if the day after is a holiday
+			//variables specifically just to calculate of the salary difference if any of the days are a holiday or smth
+			char nightholiday='N', nightspecial='N', nightrest_day='N';
+			int overcurrentM=currentM, overcurrentD=currentD;
+			
+			//day +1
+			overcurrentD++;
+			
+			//if the day is on the end of the month, month +1 day =1
+			if ((currentM == 1 || currentM == 3 || currentM == 5 ||currentM == 7 ||currentM == 8 ||currentM== 10 ||currentM == 12)&&overcurrentD>31)
+					{overcurrentM++;
+					overcurrentD=1;}
+			else if ((currentM == 4 || currentM == 6 || currentM == 9 ||currentM == 11)&overcurrentD>30)
+				{overcurrentM++;
+				overcurrentD=1;}
+			else if ((currentM==2)&&overcurrentD>28)
+				{overcurrentM++;
+				overcurrentD=1;}
+		
+		//checks if the new day is special in any way (holiday/special/rest day)
+		nightholiday=isholiday(overcurrentM, overcurrentD);
+		nightspecial=isspecial(overcurrentM, overcurrentD);
+		nightrest_day=isrest_day(overcurrentM, overcurrentD, consecutive, &rest_day_1M, &rest_day_1D, 
+			&rest_day_2M, &rest_day_2D, &rest_day_3M, &rest_day_3D, &rest_day_4M, &rest_day_4D, 
+			&rest_day_5M, &rest_day_5D, &rest_day_6M, &rest_day_6D, &rest_day_7M, &rest_day_7D, 
+			&rest_day_8M, &rest_day_8D, &rest_day_9M, &rest_day_9D, &rest_day_10M, &rest_day_10D);
+			
+		//calculates the salary of the remaining hours (0-> end time)
+		daysal+=daysworked(overcurrentM, overcurrentD, &overnighthrs, &worked, &overnonight, nightholiday, nightspecial, 
+		nightrest_day, 0, endHr, 0, endMin, currentHr, min_rate, &nsot, & regot, & dayafter, 'Y', passedon);
+	
+			}
+			//not overnight
+		else
+		//just calculates salary normally
+			{daysal+=daysworked(currentM, currentD, &nighthrs, &worked, &nonight, holiday, special, rest_day
+			, startHr, endHr, startMin, endMin, currentHr, min_rate, &nsot, &regot, &dayafter, 'N', passedon);
+			}
+	//the salary of the specific day is added to the running salary (eg. will calculate 10 days, adds day 1 to running total, adds day 2, etc)
+	running_salary+=daysal;
+		
+	//outputs
+	printf("\nYour salary for %d/%d is %.2f.", currentM, currentD, daysal);
+	printf("\nSo far, your salary for the start until %d/%d is %.2f.", currentM, currentD, running_salary);
+	
+	//for easier double checking of outputs
+	int out=worked;
+	/*
+	printf("\nYou worked %d hours and %d minutes.", out/60, (out%60));
+	printf("\nHoliday: %c , Special: %c , Rest Day: %c\n\n", holiday, special, rest_day);
+	printf("\nIn minutes\nregular shift: %f, regular overtime: %f, night shift: %f, nightshift overtime: %f, dayafter: %f, passed on: %f\n", nonight, regot, nighthrs, nsot, dayafter, passedon);
+
+	*/
+				
+	//reset the number of hours worked and events
+	worked=0;
+	nighthrs=0;
+	nonight=0;
+	overnighthrs=0;
+	overnonight=0;
+	holiday='N';
+	special='N';
+	rest_day='N';
+	daysal=0;
+	nsot=0;
+	regot=0;
+		} // end bracket for the loop for days
+	}//end bracket for the loop for months
+	//total salary of employee x for the entire time period inputted 
+	printf("\nEmployee %d's salary for %d/%d - %d/%d is %.2f. ", x, start_periodM, start_periodD, end_periodM, end_periodD, running_salary);
+	
+	//resetting the values for the next employee
+	running_salary=0;
+	rest_day_1M=0, rest_day_1D=0, rest_day_2M=0, rest_day_2D=0, 
+	rest_day_3M=0, rest_day_3D=0, rest_day_4M=0, rest_day_4D=0, 
+	rest_day_5M=0, rest_day_5D=0, rest_day_6M=0, rest_day_6D=0, 
+	rest_day_7M=0, rest_day_7D=0, rest_day_8M=0, rest_day_8D=0, 
+	rest_day_9M=0, rest_day_9D=0, rest_day_10M=0, rest_day_10D=0;
+	rate_check='N';
+	rest_check='N';
+	
+  }//end bracket for the multiple employee part
+}//end bracket of main
